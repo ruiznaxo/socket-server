@@ -1,4 +1,5 @@
 import { Router, Request, Response  } from "express";
+import Server from "../clases/server";
 
 const router = Router();
 
@@ -10,21 +11,34 @@ router.get('/mensajes', (req: Request, res: Response) => {
 });
 
 router.post('/mensajes', (req: Request, res: Response) => {
-    const test = req.body.test;
-    const test2 = req.body.test2;
-    res.json({
-        ok: true,
-        test,
-        test2
-    });
+    const server = Server.instance;
+    const de = req.body.de;
+    const cuerpo = req.body.cuerpo;
+    
+    const payload = {
+        de,
+        cuerpo
+    }
+    
+    server.io.emit('mensaje-nuevo', payload)
+    res.json(payload);
 });
 
-router.get('/mensajes/:id', (req: Request, res: Response) => {
+router.post('/mensajes/:id', (req: Request, res: Response) => {
+
+    const server = Server.instance;
     const id = req.params.id;
-    res.json({
-        ok: true,
-        id
-    });
+    const de = req.body.de;
+    const msg = req.body.msg;
+    
+    const payload = {
+        de,
+        msg
+    }
+    
+    server.io.in(id).emit('mensaje-privado', payload)
+    res.json(payload);
+
 });
 
 export default router;
